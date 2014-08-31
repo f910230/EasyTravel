@@ -1,11 +1,10 @@
 /* Space out content a bit */
 body {
-  padding-top: 50px;
-  padding-bottom: 20px;
 }
 
 /*menu*/
 #top-menu {
+	margin-bottom: 0px;
 	border-bottom: solid 1px lightgray;
 	background-color: #FFFFFF;
 }
@@ -31,18 +30,19 @@ body {
 }
 
 /*left*/
-.left-map {
+#left-map {
 	height: 100%;
 	background-color: #F3F3F3;
+	padding: 0px;
 }
 
 /*middle*/
-.middle-plan {
+#middle-plan {
 	height: 100%;
 }
 
 /*right*/
-.right-spotlist {
+#right-spotlist {
 	height: 100%;
 	background-color: #F3F3F3;
 }
@@ -93,10 +93,5 @@ body {
 	position: absolute;
 	right: 15px;
 	top: 15px;
-}
-
-/*footer*/
-.custom-hr {
-	margin-top: 0px;
 }
 
