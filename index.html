@@ -83,7 +83,7 @@
 							input: autocomplete.input,
 							name: place.name,
 							address: place.formatted_address,
-							time: autocomplete.input.parentElement.children[1].value,
+							time: autocomplete.input.parentElement.parentElement.children[1].children[0].value,
 							location: place.geometry.location
 						});
 
@@ -189,12 +189,11 @@
 						name: name,
 						address: adress,
 						time: time,
-						location: {
-							B: lat, K:lon
-						}
+						location: new google.maps.LatLng(lat, lon)
 					});
 					$(this).toggleClass("spots-recommend-background-color");
 				})
+				
 				initialize();
 
 				function computeRoute() {
