@@ -30,8 +30,33 @@
 				$('#right-spotlist').height(850);
 
 				locations = new Array();
-				hotelLocation = null;
+				m_hotels = new Array();
 
+				function sethotels(hotels) {
+					m_hotels = [];
+					for(var i = 0; i < hotels.length; i++) {
+						m_hotels.push(hotels[i].hotel[0].hotelBasicInfo);
+					}
+					
+					$('#hotel-list').empty();
+					var str11 = "<div class='hotel-list-item'><div class='media'><a href='#' class='pull-left'><img src='"
+					var str12 = "<div class='hotel-list-item spots-recommend-background-color'><div class='media'><a href='#' class='pull-left'><img src='"
+					var str2 = "' class='media-object' alt=''></a><div class='media-body'><h4 class='media-heading'>"					
+					var str3 = "<small><i>"
+					var str4 = "</i></small></h4><p>"
+					var str5 = "</p></div></div></div>"
+					for (var i = 0; i < m_hotels.length; i++) {
+						var hotelName = m_hotels[i].hotelName;
+						var hotelThumbnailUrl = m_hotels[i].hotelThumbnailUrl;
+						var nearestStation = m_hotels[i].nearestStation;
+						var hotelSpecial = m_hotels[i].hotelSpecial;
+						var str1 = str11;
+						if(i == 0)
+							str1 = str12;
+						var htmlstr = str1 + hotelThumbnailUrl + str2 + hotelName + str3 + nearestStation + str4 + hotelSpecial + str5;
+						$('#hotel-list').append(htmlstr);
+					}
+				}
 
 				function addlocation(loc) {
 					var input = loc.input;
@@ -141,18 +166,21 @@
 
 				$('.dropdown-toggle').dropdown();
 
-				$('#add-spot-btn').click(function() {
-					var index = $('.spots-input').size();
-					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
-					initAutoCompleteInputs($('.spots-input')[index]);
-				});
-
-				$('.del-button').click(function() {
+				function deleteCustonSpot() {
 					if ($(this)[0].parentElement.parentElement.children.length > 1) {
 						$(this)[0].parentElement.remove();
 						removelocation($(this)[0].parentElement.children[0].children[0].children[0]);
 					}
+				}
+				$('.del-button').click(deleteCustonSpot);
+
+				$('#add-spot-btn').click(function() {
+					var index = $('.spots-input').size();
+					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
+					initAutoCompleteInputs($('.spots-input')[index]);
+					$('.del-button').click(deleteCustonSpot);
 				});
+
 
 				$('.calc-button').click(function() {
 					var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
@@ -193,7 +221,7 @@
 					});
 					$(this).toggleClass("spots-recommend-background-color");
 				})
-				
+
 				initialize();
 
 				function computeRoute() {
@@ -213,6 +241,7 @@
 						type: "get",
 						url: getUrl,
 						success: function(data) {
+							sethotels(data.hotels);
 							hotelName = data.hotels[0].hotel[0].hotelBasicInfo.hotelName;
 							hotelLat = data.hotels[0].hotel[0].hotelBasicInfo.latitude;
 							hotelLng = data.hotels[0].hotel[0].hotelBasicInfo.longitude;
@@ -249,18 +278,18 @@
 									if (status == google.maps.DirectionsStatus.OK) {
 										//alert("success");
 										directionsDisplay.setDirections(response);
-										var route = response.routes[0];
-										var summaryPanel = document.getElementById('directions_panel');
-										summaryPanel.innerHTML = '';
-										// For each route, display summary information.
-										for (var i = 0; i < route.legs.length; i++) {
-											var routeSegment = i + 1;
-											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
-											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
-											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
-											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
-										}
+//										var route = response.routes[0];
+//										var summaryPanel = document.getElementById('directions_panel');
+//										summaryPanel.innerHTML = '';
+//										// For each route, display summary information.
+//										for (var i = 0; i < route.legs.length; i++) {
+//											var routeSegment = i + 1;
+//											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+//											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+//											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+//											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+//											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
+//										}
 									}
 								});
 
@@ -292,50 +321,6 @@
 				</div>
 				<hr />
 				<div id="hotel-list">
-					<div class="hotel-list-item">
-						<div class="media">
-							<a href="#" class="pull-left">
-								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
-							</a>
-							<div class="media-body">
-								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
-								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
-							</div>
-						</div>
-					</div>
-					<div class="hotel-list-item">
-						<div class="media">
-							<a href="#" class="pull-left">
-								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
-							</a>
-							<div class="media-body">
-								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
-								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
-							</div>
-						</div>
-					</div>
-					<div class="hotel-list-item">
-						<div class="media">
-							<a href="#" class="pull-left">
-								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
-							</a>
-							<div class="media-body">
-								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
-								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
-							</div>
-						</div>
-					</div>
-					<div class="hotel-list-item">
-						<div class="media">
-							<a href="#" class="pull-left">
-								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
-							</a>
-							<div class="media-body">
-								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
-								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
@@ -347,7 +332,7 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li>
-					<a class="dropdown-menu-link">東京</a>
+								<a class="dropdown-menu-link">東京</a>
 							</li>
 							<li>
 								<a class="dropdown-menu-link">大阪</a>
@@ -365,18 +350,6 @@
 					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
 						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
 					</button>
-				</div>
-				<div id="spots-middle-menu">
-					<div class="input-group">
-						<input type="text" class="form-control">
-						<span class="input-group-btn">
-
-					        <button class="btn btn-default" type="button">
-
-					        	<span class="glyphicon glyphicon-search"></span>
-						</button>
-						</span>
-					</div>
 				</div>
 				<div id="spots-list">
 					<div class="spots-list-item">
@@ -408,20 +381,108 @@
 				</div>
 				<div id="spots-recommend-list">
 					<div class="spots-recommend-list-item">
-						<input type="hidden" class="spots-recommend-lat" value="35.6837805" />
-						<input type="hidden" class="spots-recommend-lon" value="139.6920019" />
+						<input type="hidden" class="spots-recommend-lat" value="35.715022" />
+						<input type="hidden" class="spots-recommend-lon" value="139.796634" />
 						<input type="hidden" class="spots-recommend-name" value="浅草寺" />
 						<input type="hidden" class="spots-recommend-adress" value="浅草寺" />
 						<input type="hidden" class="spots-recommend-time" value="1.5" />
 						<div class="media">
 							<a href="#" class="pull-left">
-								<img src="img/test.jpg" class="media-object" alt="">
+								<img src="img/test.jpg" class="media-object" alt="" height="100" width="150">
 							</a>
 							<div class="media-body">
 								<h3 class="media-heading"><strong>浅草寺</strong> </h3>
 								<h4><i>平均時間: 1時間</i></h4>
 								<div class="spots-recommend-list-item-intro">
 									<p>紹介: 東京都台東区浅草二丁目にある東京都内最古の寺である。山号は金龍山。本尊は聖観音菩薩。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.710276" />
+						<input type="hidden" class="spots-recommend-lon" value="139.810711" />
+						<input type="hidden" class="spots-recommend-name" value="東京スカイツリー" />
+						<input type="hidden" class="spots-recommend-adress" value="東京スカイツリー" />
+						<input type="hidden" class="spots-recommend-time" value="2" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/skytree.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>スカイツリー</strong> </h3>
+								<h4><i>平均時間: 2時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都墨田区押上一丁目にある電波塔である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.658828" />
+						<input type="hidden" class="spots-recommend-lon" value="139.745433" />
+						<input type="hidden" class="spots-recommend-name" value="東京タワー" />
+						<input type="hidden" class="spots-recommend-adress" value="東京タワー" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/tokyotower.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>東京タワー</strong> </h3>
+								<h4><i>平均時間: 1.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京のシンボル・観光名所として知られる。正式名称は日本電波塔。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.671950" />
+						<input type="hidden" class="spots-recommend-lon" value="139.694956" />
+						<input type="hidden" class="spots-recommend-name" value="代々木公園" />
+						<input type="hidden" class="spots-recommend-adress" value="代々木公園" />
+						<input type="hidden" class="spots-recommend-time" value="1" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/yoyogi.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>代々木公園</strong> </h3>
+								<h4><i>平均時間: 1時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都渋谷区にある公園である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.685433" />
+						<input type="hidden" class="spots-recommend-lon" value="139.710063" />
+						<input type="hidden" class="spots-recommend-name" value="新宿御苑" />
+						<input type="hidden" class="spots-recommend-adress" value="新宿御苑" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/shinnjyukugyoenn.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>新宿御苑</strong> </h3>
+								<h4><i>平均時間: 1.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都新宿区と渋谷区に跨る環境省所管の庭園である。</p>
 								</div>
 							</div>
 						</div>
