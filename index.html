@@ -14,7 +14,7 @@
 
 		<script type="text/javascript" src="js/jquery-1.11.1.js"></script>
 		<script type="text/javascript" src="js/bootstrap.js"></script>
-		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBt0B5zfhPz_cSaeBkiCeE1sdz_87nJbrM&libraries=places">
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBt0B5zfhPz_cSaeBkiCeE1sdz_87nJbrM&libraries=places&v=3.exp">
 		</script>
 		<script>
 			Array.prototype.remove = function(from, to) {
@@ -31,6 +31,7 @@
 
 				locations = new Array();
 				hotelLocation = null;
+
 
 				function addlocation(loc) {
 					var input = loc.input;
@@ -115,13 +116,13 @@
 					});
 				}
 
-
 				function initialize() {
 					var mapOptions = {
 						zoom: 13,
 						center: new google.maps.LatLng(35.6837805, 139.6920019),
 					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
 
 					for (var i = 0; i < $('.spots-input').size(); i++) {
 						initAutoCompleteInputs($('.spots-input')[i]);
@@ -166,6 +167,7 @@
 						var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
 						$('#scheduling-list').append(htmlstr);
 					}
+					computeRoute();
 				});
 
 				$('.dropdown-menu-link').click(function() {
@@ -194,6 +196,83 @@
 					$(this).toggleClass("spots-recommend-background-color");
 				})
 				initialize();
+
+				function computeRoute() {
+					var aveLat = 0;
+					var aveLng = 0;
+					for (var i = 0; i < locations.length; i++) {
+						aveLat += locations[i].location.lat();
+						aveLng += locations[i].location.lng();
+					}
+					aveLat /= locations.length;
+					aveLng /= locations.length;
+
+					var getUrl = "https://app.rakuten.co.jp/services/api/Travel/SimpleHotelSearch/20131024?format=json&latitude=" + aveLat + "&longitude=" + aveLng + "&searchRadius=3&datumType=1&applicationId=1073093603950172902";
+
+					var hotelName, hotelLat, hotelLng;
+					$.ajax({
+						type: "get",
+						url: getUrl,
+						success: function(data) {
+							hotelName = data.hotels[0].hotel[0].hotelBasicInfo.hotelName;
+							hotelLat = data.hotels[0].hotel[0].hotelBasicInfo.latitude;
+							hotelLng = data.hotels[0].hotel[0].hotelBasicInfo.longitude;
+							//alert(hotelName);
+
+							//var haight = new google.maps.LatLng(37.7699298, -122.4469157);
+							//var oceanBeach = new google.maps.LatLng(37.7683909618184, -122.51089453697205);
+
+							var start = new google.maps.LatLng(hotelLat, hotelLng);
+							var end = start;
+							waypts = [];
+							for (var i = 0; i < locations.length; i++) {
+
+								var latlng = new google.maps.LatLng(locations[i].location.lat(),
+									locations[i].location.lng());
+								waypts.push({
+									location: latlng,
+									stopover: true
+								});
+								var request = {
+									origin: start,
+									destination: end,
+									waypoints: waypts,
+									optimizeWaypoints: true,
+									travelMode: google.maps.TravelMode.DRIVING
+								};
+
+								var directionsService = new google.maps.DirectionsService();
+								var directionsDisplay = new google.maps.DirectionsRenderer();
+								directionsDisplay.setMap(map);
+
+								directionsService.route(request, function(response, status) {
+									console.log(status);
+									if (status == google.maps.DirectionsStatus.OK) {
+										//alert("success");
+										directionsDisplay.setDirections(response);
+										var route = response.routes[0];
+										var summaryPanel = document.getElementById('directions_panel');
+										summaryPanel.innerHTML = '';
+										// For each route, display summary information.
+										for (var i = 0; i < route.legs.length; i++) {
+											var routeSegment = i + 1;
+											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
+										}
+									}
+								});
+
+							}
+
+						}
+					});
+
+				}
+
+
 			});
 		</script>
 	</head>
@@ -269,13 +348,14 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li>
-								<a class="dropdown-menu-link">東京</a>
+					<a class="dropdown-menu-link">東京</a>
 							</li>
 							<li>
 								<a class="dropdown-menu-link">大阪</a>
 							</li>
 							<li>
 								<a class="dropdown-menu-link">京都</a>
+
 							</li>
 						</ul>
 					</div>
@@ -284,15 +364,16 @@
 						スケジューリング
 					</button>
 					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
-						<span class="glyphicon glyphicon-plus"></span>
-						観光スポットを追加
+						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
 					</button>
 				</div>
 				<div id="spots-middle-menu">
 					<div class="input-group">
 						<input type="text" class="form-control">
 						<span class="input-group-btn">
+
 					        <button class="btn btn-default" type="button">
+
 					        	<span class="glyphicon glyphicon-search"></span>
 						</button>
 						</span>
