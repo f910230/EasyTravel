@@ -155,20 +155,11 @@
 				});
 
 				$('.calc-button').click(function() {
-					var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
-					var str2 = "</div>";
-					var str3 = "<div class='schedul-list-item-detail'><div class='schedul-list-item-detail-name'><strong>";
-					var str4 = "</strong></div><div class='schedul-list-item-detail-address'><small>";
-					var str5 = "</small></div></div></div>";
-					for (var i = 0; i < locations.length; i++) {
-						var name = locations[i].name;
-						var address = locations[i].address;
-						var time = "03:14"
-						var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
-						$('#scheduling-list').append(htmlstr);
-					}
+
 					computeRoute();
 				});
+
+
 
 				$('.dropdown-menu-link').click(function() {
 					if ($(this).html() == "東京")
@@ -193,7 +184,7 @@
 					});
 					$(this).toggleClass("spots-recommend-background-color");
 				})
-				
+
 				initialize();
 
 				function computeRoute() {
@@ -223,9 +214,11 @@
 
 							var start = new google.maps.LatLng(hotelLat, hotelLng);
 							var end = start;
-							waypts = [];
-							for (var i = 0; i < locations.length; i++) {
 
+							var waypts = [];
+							var accumTime = 0;
+							for (var i = 0; i < locations.length; i++) {
+								accumTime += locations[i].time;
 								var latlng = new google.maps.LatLng(locations[i].location.lat(),
 									locations[i].location.lng());
 								waypts.push({
@@ -239,32 +232,72 @@
 									optimizeWaypoints: true,
 									travelMode: google.maps.TravelMode.DRIVING
 								};
-
-								var directionsService = new google.maps.DirectionsService();
-								var directionsDisplay = new google.maps.DirectionsRenderer();
-								directionsDisplay.setMap(map);
-
-								directionsService.route(request, function(response, status) {
-									console.log(status);
-									if (status == google.maps.DirectionsStatus.OK) {
-										//alert("success");
-										directionsDisplay.setDirections(response);
-										var route = response.routes[0];
-										var summaryPanel = document.getElementById('directions_panel');
-										summaryPanel.innerHTML = '';
-										// For each route, display summary information.
-										for (var i = 0; i < route.legs.length; i++) {
-											var routeSegment = i + 1;
-											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
-											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
-											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
-											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
-										}
-									}
-								});
-
 							}
+
+							var directionsService = new google.maps.DirectionsService();
+							var directionsDisplay = new google.maps.DirectionsRenderer();
+							directionsDisplay.setMap(map);
+
+							directionsService.route(request, function(response, status) {
+								console.log(status);
+								if (status == google.maps.DirectionsStatus.OK) {
+									//alert("success");
+									var route = response.routes[0];
+
+
+
+									//									for (var i = 1; i < locations.length; i++) {
+									//										var name = locations[i].name;
+									//										var address = locations[i].address;
+									//										time += locations[i - 1].time + route.legs[i - 1].duration.text;
+									//										var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
+									//										$('#scheduling-list').append(htmlstr);
+									//									}
+
+
+									directionsDisplay.setDirections(response);
+									var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
+									var str2 = "</div>";
+									var str3 = "<div class='schedul-list-item-detail'><div class='schedul-list-item-detail-name'><strong>";
+									var str4 = "</strong></div><div class='schedul-list-item-detail-address'><small>";
+									var str5 = "</small></div></div></div>";
+									var name = hotelName;
+									var time = 8;
+									
+									var address = route.legs[0].start_address;
+									var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
+									$('#scheduling-list').append(htmlstr);
+									//var summaryPanel = document.getElementById('directions_panel');
+									//summaryPanel.innerHTML = '';
+									// For each route, display summary information.
+									for (var i = 1; i < route.legs.length; i++) {
+
+										var address = route.legs[i].start_address;
+										var name = locations[i-1].name;
+										time += parseInt(locations[i - 1].time) + parseInt(route.legs[i - 1].duration.value) / 3600;
+										var humanTime = Math.floor(time) + ":" + Math.floor((time-Math.floor(time))*60);
+										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+										$('#scheduling-list').append(htmlstr);
+										//											var routeSegment = i + 1;
+										//											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+										//											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+										//											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+										//											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+										//											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
+
+
+									}
+									name = hotelName;
+									time += parseInt(locations[locations.length-1].time) + parseInt(route.legs[route.legs.length-1].duration.value) / 3600;
+									var humanTime = Math.floor(time) + ":" + Math.floor((time-Math.floor(time))*60);
+									address = route.legs[0].start_address;
+									htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+									$('#scheduling-list').append(htmlstr);
+								}
+							});
+
+
+
 
 						}
 					});
@@ -347,7 +380,7 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li>
-					<a class="dropdown-menu-link">東京</a>
+								<a class="dropdown-menu-link">東京</a>
 							</li>
 							<li>
 								<a class="dropdown-menu-link">大阪</a>
