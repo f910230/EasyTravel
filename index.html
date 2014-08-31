@@ -1,79 +1,556 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="EasyTravel : ">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+		<title>Easy Travel</title>
 
-    <title>EasyTravel</title>
-  </head>
+		<link rel="stylesheet" href="css/bootstrap.css" />
 
-  <body>
+		<!-- Custom styles for this template -->
+		<link rel="stylesheet" href="css/travelhotel.css" />
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/f910230/EasyTravel">View on GitHub</a>
+		<script type="text/javascript" src="js/jquery-1.11.1.js"></script>
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBt0B5zfhPz_cSaeBkiCeE1sdz_87nJbrM&libraries=places&v=3.exp">
+		</script>
+		<script>
+			Array.prototype.remove = function(from, to) {
+				var rest = this.slice((to || from) + 1 || this.length);
+				this.length = from < 0 ? this.length + from : from;
+				return this.push.apply(this, rest);
+			};
 
-          <h1 id="project_title">EasyTravel</h1>
-          <h2 id="project_tagline"></h2>
+			$(document).ready(function() {
+				var winheight = $(document).height();
+				$('#left-map').height(870);
+				$('#middle-plan').height(850);
+				$('#right-spotlist').height(850);
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/f910230/EasyTravel/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/f910230/EasyTravel/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+				locations = new Array();
+				m_hotels = new Array();
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+				function sethotels(hotels) {
+					m_hotels = [];
+					for (var i = 0; i < hotels.length; i++) {
+						m_hotels.push(hotels[i].hotel[0].hotelBasicInfo);
+					}
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+					$('#hotel-list').empty();
+					var str11 = "<div class='hotel-list-item'><div class='media'><a href='#' class='pull-left'><img src='"
+					var str12 = "<div class='hotel-list-item spots-recommend-background-color'><div class='media'><a href='#' class='pull-left'><img src='"
+					var str2 = "' class='media-object' alt=''></a><div class='media-body'><h4 class='media-heading'>"
+					var str3 = "<small><i>"
+					var str4 = "</i></small></h4><p>"
+					var str5 = "</p></div></div></div>"
+					for (var i = 0; i < m_hotels.length; i++) {
+						var hotelName = m_hotels[i].hotelName;
+						var hotelThumbnailUrl = m_hotels[i].hotelThumbnailUrl;
+						var nearestStation = m_hotels[i].nearestStation;
+						var hotelSpecial = m_hotels[i].hotelSpecial;
+						var str1 = str11;
+						if (i == 0)
+							str1 = str12;
+						var htmlstr = str1 + hotelThumbnailUrl + str2 + hotelName + str3 + nearestStation + str4 + hotelSpecial + str5;
+						$('#hotel-list').append(htmlstr);
+					}
+				}
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+				function addlocation(loc) {
+					var input = loc.input;
+					var location = loc.location;
+					var flag = false;
+					for (var i = 0; i < locations.length; i++) {
+						if (locations[i].input == input) {
+							locations[i].location = location;
+							flag = true;
+						}
+					}
+					if (!flag) {
+						locations.push(loc);
+					}
+				}
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+				function removelocation(input) {
+					var index = -1;
+					for (var i = 0; i < locations.length; i++) {
+						if (locations[i].input == input) {
+							index = i;
+							break;
+						}
+					}
+					if (index != -1)
+						locations.remove(i);
+				}
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+				function initAutoCompleteInputs(input) {
+					var autocomplete = new google.maps.places.Autocomplete(input);
+					autocomplete.bindTo('bounds', map);
+					autocomplete.input = input;
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+					var infowindow = new google.maps.InfoWindow();
+					var marker = new google.maps.Marker({
+						map: map,
+						anchorPoint: new google.maps.Point(0, -29)
+					});
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+					google.maps.event.addListener(autocomplete, 'place_changed', function() {
+						infowindow.close();
+						marker.setVisible(false);
+						var place = autocomplete.getPlace();
+						if (!place.geometry) {
+							return;
+						}
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+						addlocation({
+							input: autocomplete.input,
+							name: place.name,
+							address: place.formatted_address,
+							time: autocomplete.input.parentElement.parentElement.children[1].children[0].value,
+							location: place.geometry.location
+						});
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+						// If the place has a geometry, then present it on a map.
+						if (place.geometry.viewport) {
+							map.fitBounds(place.geometry.viewport);
+						} else {
+							map.setCenter(place.geometry.location);
+							map.setZoom(17); // Why 17? Because it looks good.
+						}
+						marker.setIcon( /** @type {google.maps.Icon} */ ({
+							url: place.icon,
+							size: new google.maps.Size(71, 71),
+							origin: new google.maps.Point(0, 0),
+							anchor: new google.maps.Point(17, 34),
+							scaledSize: new google.maps.Size(35, 35)
+						}));
+						marker.setPosition(place.geometry.location);
+						marker.setVisible(true);
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+						var address = '';
+						if (place.address_components) {
+							address = [
+								(place.address_components[0] && place.address_components[0].short_name || ''), (place.address_components[1] && place.address_components[1].short_name || ''), (place.address_components[2] && place.address_components[2].short_name || '')
+							].join(' ');
+						}
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+						infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+						infowindow.open(map, marker);
+					});
+				}
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-    </div>
+				function initialize() {
+					var mapOptions = {
+						zoom: 13,
+						center: new google.maps.LatLng(35.6837805, 139.6920019),
+					}
+					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">EasyTravel maintained by <a href="https://github.com/f910230">f910230</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
 
-    
+					for (var i = 0; i < $('.spots-input').size(); i++) {
+						initAutoCompleteInputs($('.spots-input')[i]);
+					}
+				}
 
-  </body>
+				function mapSetCenter(btnNo) {
+
+					if (btnNo == 1) {
+						map.setCenter(new google.maps.LatLng(35.6837805, 139.6920019));
+					}
+					if (btnNo == 2) {
+						map.setCenter(new google.maps.LatLng(34.6784, 135.49515));
+					}
+				}
+
+				$('.dropdown-toggle').dropdown();
+
+				function deleteCustonSpot() {
+					if ($(this)[0].parentElement.parentElement.children.length > 1) {
+						$(this)[0].parentElement.remove();
+						removelocation($(this)[0].parentElement.children[0].children[0].children[0]);
+					}
+				}
+				$('.del-button').click(deleteCustonSpot);
+
+				$('#add-spot-btn').click(function() {
+					var index = $('.spots-input').size();
+					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control spots-time' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
+					initAutoCompleteInputs($('.spots-input')[index]);
+					$('.del-button').click(deleteCustonSpot);
+				});
+
+
+
+				$('.calc-button').click(function() {
+					for(var i = 0; i < locations.length; i++) {
+						for(var j = 0; j < $('.spots-time').size(); j++) {
+							var time = $('.spots-time')[j].value;
+							if(locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
+								locations[i].time = time;
+						}
+					}
+					computeRoute();
+				});
+
+
+
+				$('.dropdown-menu-link').click(function() {
+					if ($(this).html() == "東京")
+						mapSetCenter(1);
+					else if ($(this).html() == "大阪")
+						mapSetCenter(2);
+				})
+
+				$('.select-button').click(function() {
+					var lat = $(this)[0].parentElement.children[0].value;
+					var lon = $(this)[0].parentElement.children[1].value;
+					var name = $(this)[0].parentElement.children[2].value;
+					var adress = $(this)[0].parentElement.children[3].value;
+					var time = $(this)[0].parentElement.children[4].value;
+
+					addlocation({
+						input: $(this)[0].parentElement,
+						name: name,
+						address: adress,
+						time: time,
+						location: new google.maps.LatLng(lat, lon)
+					});
+					$(this).toggleClass("spots-recommend-background-color");
+				})
+
+				initialize();
+
+				function computeRoute() {
+					var aveLat = 0;
+					var aveLng = 0;
+					for (var i = 0; i < locations.length; i++) {
+						aveLat += locations[i].location.lat();
+						aveLng += locations[i].location.lng();
+					}
+					aveLat /= locations.length;
+					aveLng /= locations.length;
+
+					var getUrl = "https://app.rakuten.co.jp/services/api/Travel/SimpleHotelSearch/20131024?format=json&latitude=" + aveLat + "&longitude=" + aveLng + "&searchRadius=3&datumType=1&applicationId=1073093603950172902";
+
+					var hotelName, hotelLat, hotelLng;
+					$.ajax({
+						type: "get",
+						url: getUrl,
+						success: function(data) {
+							sethotels(data.hotels);
+							hotelName = data.hotels[0].hotel[0].hotelBasicInfo.hotelName;
+							hotelLat = data.hotels[0].hotel[0].hotelBasicInfo.latitude;
+							hotelLng = data.hotels[0].hotel[0].hotelBasicInfo.longitude;
+							//alert(hotelName);
+
+							//var haight = new google.maps.LatLng(37.7699298, -122.4469157);
+							//var oceanBeach = new google.maps.LatLng(37.7683909618184, -122.51089453697205);
+
+							var start = new google.maps.LatLng(hotelLat, hotelLng);
+							var end = start;
+
+							var waypts = [];
+							var accumTime = 0;
+							for (var i = 0; i < locations.length; i++) {
+								accumTime += locations[i].time;
+								var latlng = new google.maps.LatLng(locations[i].location.lat(),
+									locations[i].location.lng());
+								waypts.push({
+									location: latlng,
+									stopover: true
+								});
+								var request = {
+									origin: start,
+									destination: end,
+									waypoints: waypts,
+									optimizeWaypoints: true,
+									travelMode: google.maps.TravelMode.DRIVING
+								};
+							}
+
+							var directionsService = new google.maps.DirectionsService();
+							var directionsDisplay = new google.maps.DirectionsRenderer();
+							directionsDisplay.setMap(map);
+
+							directionsService.route(request, function(response, status) {
+								console.log(status);
+								if (status == google.maps.DirectionsStatus.OK) {
+									//alert("success");
+									var route = response.routes[0];
+									$('#scheduling-list').html("");
+
+
+									//									for (var i = 1; i < locations.length; i++) {
+									//										var name = locations[i].name;
+									//										var address = locations[i].address;
+									//										time += locations[i - 1].time + route.legs[i - 1].duration.text;
+									//										var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
+									//										$('#scheduling-list').append(htmlstr);
+									//									}
+
+
+									directionsDisplay.setDirections(response);
+									var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
+									var str2 = "</div>";
+									var str3 = "<div class='schedul-list-item-detail'><div class='schedul-list-item-detail-name'><strong>";
+									var str4 = "</strong></div><div class='schedul-list-item-detail-address'><small>";
+									var str5 = "</small></div></div></div>";
+									var name = hotelName;
+									var time = 8;
+									var humanTime = "08:00";
+									var address = route.legs[0].start_address;
+									var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+									$('#scheduling-list').append(htmlstr);
+									//var summaryPanel = document.getElementById('directions_panel');
+									//summaryPanel.innerHTML = '';
+									// For each route, display summary information.
+									for (var i = 1; i < route.legs.length; i++) {
+
+										var address = route.legs[i].start_address;
+										var name = locations[i - 1].name;
+										time += parseInt(locations[i - 1].time) + parseInt(route.legs[i - 1].duration.value) / 3600;
+										var hour = Math.floor(time);
+										if (hour < 10)
+											hour = "0" + hour;
+										var humanTime = hour + ":";
+										var min = Math.floor((time - Math.floor(time)) * 60);
+										if (min < 10) {
+											min = "0" + min;
+										}
+										humanTime += min;
+										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+										$('#scheduling-list').append(htmlstr);
+										//											var routeSegment = i + 1;
+										//											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+										//											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+										//											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+										//											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+										//											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
+
+
+
+									}
+									name = hotelName;
+									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
+									var hour = Math.floor(time);
+										if (hour < 10)
+											hour = "0" + hour;
+									var humanTime = hour + ":";
+									var min = Math.floor((time - Math.floor(time)) * 60);
+									if (min < 10) {
+										min = "0" + min;
+									}
+									humanTime += min;
+									address = route.legs[0].start_address;
+									htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+									$('#scheduling-list').append(htmlstr);
+								}
+							});
+
+
+
+
+						}
+					});
+
+				}
+
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<div id="top-menu" class="navbar" role="navigation">
+			<div class="navbar-header">
+				<a id="site-title" class="navbar-brand" href="#"><strong>Easy Travel</strong></a>
+			</div>
+		</div>
+
+		<div class="row custom-container">
+			<div id="left-map" class="col-md-4 main-middle-container border-space">
+				<div id="map_canvas" style="width: 100%; height: 100%"></div>
+			</div>
+			<div id="middle-plan" class="col-md-4 main-middle-container border-space">
+				<div id="scheduling-list">
+				</div>
+				<hr />
+				<div id="hotel-list">
+				</div>
+			</div>
+			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
+				<div id="spots-title">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-lg dropdown-toggle">
+							東京
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a class="dropdown-menu-link">東京</a>
+							</li>
+							<li>
+								<a class="dropdown-menu-link">大阪</a>
+							</li>
+							<li>
+								<a class="dropdown-menu-link">京都</a>
+
+							</li>
+						</ul>
+					</div>
+					<button type="button" id="calc-spot-btn" class="btn btn-default btn-lg calc-button">
+						<span class="glyphicon glyphicon-pencil"></span>
+						スケジューリング
+					</button>
+					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
+						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
+					</button>
+				</div>
+				<div id="spots-list">
+					<div class="spots-list-item">
+						<div class="row　spots-infos">
+							<div class="col-xs-6">
+								<input type="text" class="form-control spots-input" placeholder="観光スポット">
+							</div>
+							<div class="col-xs-4">
+								<input type="text" class="form-control spots-time" placeholder="遊覧時間" value="1.5">
+							</div>
+						</div>
+						<button type="button" class="btn btn-default del-button">
+							<span class="glyphicon glyphicon-minus"></span>
+						</button>
+					</div>
+					<div class="spots-list-item">
+						<div class="row　spots-infos">
+							<div class="col-xs-6">
+								<input type="text" class="form-control spots-input" placeholder="観光スポット">
+							</div>
+							<div class="col-xs-4">
+								<input type="text" class="form-control" placeholder="所要時間" value="1.5">
+							</div>
+						</div>
+						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
+							<span class="glyphicon glyphicon-minus"></span>
+						</button>
+					</div>
+				</div>
+				<div id="spots-recommend-list">
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.715022" />
+						<input type="hidden" class="spots-recommend-lon" value="139.796634" />
+						<input type="hidden" class="spots-recommend-name" value="浅草寺" />
+						<input type="hidden" class="spots-recommend-adress" value="浅草寺" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/test.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>浅草寺</strong> </h3>
+								<h4><i>平均時間: 1時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都台東区浅草二丁目にある東京都内最古の寺である。山号は金龍山。本尊は聖観音菩薩。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.710276" />
+						<input type="hidden" class="spots-recommend-lon" value="139.810711" />
+						<input type="hidden" class="spots-recommend-name" value="東京スカイツリー" />
+						<input type="hidden" class="spots-recommend-adress" value="東京スカイツリー" />
+						<input type="hidden" class="spots-recommend-time" value="2" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/skytree.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>スカイツリー</strong> </h3>
+								<h4><i>平均時間: 2時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都墨田区押上一丁目にある電波塔である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.658828" />
+						<input type="hidden" class="spots-recommend-lon" value="139.745433" />
+						<input type="hidden" class="spots-recommend-name" value="東京タワー" />
+						<input type="hidden" class="spots-recommend-adress" value="東京タワー" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/tokyotower.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>東京タワー</strong> </h3>
+								<h4><i>平均時間: 1.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京のシンボル・観光名所として知られる。正式名称は日本電波塔。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.671950" />
+						<input type="hidden" class="spots-recommend-lon" value="139.694956" />
+						<input type="hidden" class="spots-recommend-name" value="代々木公園" />
+						<input type="hidden" class="spots-recommend-adress" value="代々木公園" />
+						<input type="hidden" class="spots-recommend-time" value="1" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/yoyogi.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>代々木公園</strong> </h3>
+								<h4><i>平均時間: 1時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都渋谷区にある公園である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.685433" />
+						<input type="hidden" class="spots-recommend-lon" value="139.710063" />
+						<input type="hidden" class="spots-recommend-name" value="新宿御苑" />
+						<input type="hidden" class="spots-recommend-adress" value="新宿御苑" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/shinnjyukugyoenn.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>新宿御苑</strong> </h3>
+								<h4><i>平均時間: 1.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都新宿区と渋谷区に跨る環境省所管の庭園である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</body>
+
 </html>
