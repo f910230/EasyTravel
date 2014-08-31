@@ -45,6 +45,25 @@ body {
 	height: 100%;
 }
 
+#scheduling-list {
+	height: 50%;
+	overflow-y: auto;
+}
+
+#hotel-list {
+	height: 50%;
+}
+
+.hotel-list-item {
+	margin: 15px;
+	height: 64px;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+	padding: 15px;
+	background: #fff;
+	position: relative;
+}
 /*right*/
 #right-spotlist {
 	height: 100%;
@@ -83,11 +102,13 @@ body {
 	background: #fff;
 	position: relative;
 }
+
 .spots-list-item-detail {
 	position: absolute;
 	left: 120px;
 	top: 15px;
 }
+
 .add-button {
 	position: absolute;
 	right: 15px;
