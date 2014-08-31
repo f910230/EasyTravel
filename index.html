@@ -176,13 +176,21 @@
 
 				$('#add-spot-btn').click(function() {
 					var index = $('.spots-input').size();
-					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
+					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control spots-time' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
 					initAutoCompleteInputs($('.spots-input')[index]);
 					$('.del-button').click(deleteCustonSpot);
 				});
 
 
+
 				$('.calc-button').click(function() {
+					for(var i = 0; i < locations.length; i++) {
+						for(var j = 0; j < $('.spots-time').size(); j++) {
+							var time = $('.spots-time')[j].value;
+							if(locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
+								locations[i].time = time;
+						}
+					}
 					computeRoute();
 				});
 
@@ -291,7 +299,7 @@
 									var str5 = "</small></div></div></div>";
 									var name = hotelName;
 									var time = 8;
-									var humanTime = "8:00";
+									var humanTime = "08:00";
 									var address = route.legs[0].start_address;
 									var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 									$('#scheduling-list').append(htmlstr);
@@ -303,7 +311,10 @@
 										var address = route.legs[i].start_address;
 										var name = locations[i - 1].name;
 										time += parseInt(locations[i - 1].time) + parseInt(route.legs[i - 1].duration.value) / 3600;
-										var humanTime = Math.floor(time) + ":";
+										var hour = Math.floor(time);
+										if (hour < 10)
+											hour = "0" + hour;
+										var humanTime = hour + ":";
 										var min = Math.floor((time - Math.floor(time)) * 60);
 										if (min < 10) {
 											min = "0" + min;
@@ -323,7 +334,10 @@
 									}
 									name = hotelName;
 									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
-									var humanTime = Math.floor(time) + ":";
+									var hour = Math.floor(time);
+										if (hour < 10)
+											hour = "0" + hour;
+									var humanTime = hour + ":";
 									var min = Math.floor((time - Math.floor(time)) * 60);
 									if (min < 10) {
 										min = "0" + min;
@@ -401,7 +415,7 @@
 								<input type="text" class="form-control spots-input" placeholder="観光スポット">
 							</div>
 							<div class="col-xs-4">
-								<input type="text" class="form-control" placeholder="遊覧時間" value="1.5">
+								<input type="text" class="form-control spots-time" placeholder="遊覧時間" value="1.5">
 							</div>
 						</div>
 						<button type="button" class="btn btn-default del-button">
