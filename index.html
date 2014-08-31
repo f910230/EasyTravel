@@ -22,12 +22,12 @@
 				this.length = from < 0 ? this.length + from : from;
 				return this.push.apply(this, rest);
 			};
-			
+
 			$(document).ready(function() {
 				var winheight = $(document).height();
-				$('#left-map').height(winheight - 51);
-				$('#middle-plan').height(winheight - 51);
-				$('#right-spotlist').height(winheight - 51);
+				$('#left-map').height(870);
+				$('#middle-plan').height(850);
+				$('#right-spotlist').height(850);
 
 				locations = new Array();
 				hotelLocation = null;
@@ -80,6 +80,9 @@
 
 						addlocation({
 							input: autocomplete.input,
+							name: place.name,
+							address: place.formatted_address,
+							time: autocomplete.input.parentElement.children[1].value,
 							location: place.geometry.location
 						});
 
@@ -113,25 +116,25 @@
 				}
 
 
-				function initialize() {	
-						var mapOptions = {
-							zoom : 13,
-							center : new google.maps.LatLng(35.6837805, 139.6920019),
-						}
+				function initialize() {
+					var mapOptions = {
+						zoom: 13,
+						center: new google.maps.LatLng(35.6837805, 139.6920019),
+					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
 					for (var i = 0; i < $('.spots-input').size(); i++) {
 						initAutoCompleteInputs($('.spots-input')[i]);
 					}
 				}
-				
+
 				function mapSetCenter(btnNo) {
-					
+
 					if (btnNo == 1) {
 						map.setCenter(new google.maps.LatLng(35.6837805, 139.6920019));
 					}
 					if (btnNo == 2) {
-						map.setCenter(new google.maps.LatLng(34.6784,135.49515));
+						map.setCenter(new google.maps.LatLng(34.6784, 135.49515));
 					}
 				}
 
@@ -139,24 +142,56 @@
 
 				$('#add-spot-btn').click(function() {
 					var index = $('.spots-input').size();
-					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
+					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control spots-input' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間' value='1.5'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
 					initAutoCompleteInputs($('.spots-input')[index]);
 				});
 
 				$('.del-button').click(function() {
-					$(this)[0].parentElement.remove();
-					removelocation($(this)[0].parentElement.children[0].children[0].children[0]);
+					if ($(this)[0].parentElement.parentElement.children.length > 1) {
+						$(this)[0].parentElement.remove();
+						removelocation($(this)[0].parentElement.children[0].children[0].children[0]);
+					}
 				});
 
 				$('.calc-button').click(function() {
-					alert("スケジューリング");
+					var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
+					var str2 = "</div>";
+					var str3 = "<div class='schedul-list-item-detail'><div class='schedul-list-item-detail-name'><strong>";
+					var str4 = "</strong></div><div class='schedul-list-item-detail-address'><small>";
+					var str5 = "</small></div></div></div>";
+					for (var i = 0; i < locations.length; i++) {
+						var name = locations[i].name;
+						var address = locations[i].address;
+						var time = "03:14"
+						var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
+						$('#scheduling-list').append(htmlstr);
+					}
 				});
-				
+
 				$('.dropdown-menu-link').click(function() {
-					if($(this).html() == "東京")
+					if ($(this).html() == "東京")
 						mapSetCenter(1);
-					else if($(this).html() == "大阪")
+					else if ($(this).html() == "大阪")
 						mapSetCenter(2);
+				})
+
+				$('.select-button').click(function() {
+					var lat = $(this)[0].parentElement.children[0].value;
+					var lon = $(this)[0].parentElement.children[1].value;
+					var name = $(this)[0].parentElement.children[2].value;
+					var adress = $(this)[0].parentElement.children[3].value;
+					var time = $(this)[0].parentElement.children[4].value;
+
+					addlocation({
+						input: $(this)[0].parentElement,
+						name: name,
+						address: adress,
+						time: time,
+						location: {
+							B: lat, K:lon
+						}
+					});
+					$(this).toggleClass("spots-recommend-background-color");
 				})
 				initialize();
 			});
@@ -166,7 +201,7 @@
 	<body>
 		<div id="top-menu" class="navbar" role="navigation">
 			<div class="navbar-header">
-				<a id="site-title"  class="navbar-brand" href="#"><strong>Easy Travel</strong></a>
+				<a id="site-title" class="navbar-brand" href="#"><strong>Easy Travel</strong></a>
 			</div>
 		</div>
 
@@ -176,15 +211,51 @@
 			</div>
 			<div id="middle-plan" class="col-md-4 main-middle-container border-space">
 				<div id="scheduling-list">
-					
 				</div>
+				<hr />
 				<div id="hotel-list">
 					<div class="hotel-list-item">
-						<div class="row　hotel-infos">
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
+								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
+							</div>
 						</div>
 					</div>
 					<div class="hotel-list-item">
-						<div class="row　hotel-infos">
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
+								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
+							</div>
+						</div>
+					</div>
+					<div class="hotel-list-item">
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
+								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
+							</div>
+						</div>
+					</div>
+					<div class="hotel-list-item">
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="http://img.travel.rakuten.co.jp/HIMG/90/38126.jpg" class="media-object" alt="Sample Image">
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading">京王プレッソイン新宿<small><i>都庁前</i></small></h4>
+								<p>★ＪＲ　新宿駅南口より初台方向へ徒歩9分／都営大江戸線　都庁前駅Ａ４出口より甲州街道方向へ徒歩8分</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -234,7 +305,7 @@
 								<input type="text" class="form-control spots-input" placeholder="観光スポット">
 							</div>
 							<div class="col-xs-4">
-								<input type="text" class="form-control" placeholder="所要時間">
+								<input type="text" class="form-control" placeholder="所要時間" value="1.5">
 							</div>
 						</div>
 						<button type="button" class="btn btn-default del-button">
@@ -247,24 +318,35 @@
 								<input type="text" class="form-control spots-input" placeholder="観光スポット">
 							</div>
 							<div class="col-xs-4">
-								<input type="text" class="form-control" placeholder="所要時間">
+								<input type="text" class="form-control" placeholder="所要時間" value="1.5">
 							</div>
 						</div>
 						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
 							<span class="glyphicon glyphicon-minus"></span>
 						</button>
 					</div>
-					<div class="spots-list-item">
-						<div class="row　spots-infos">
-							<div class="col-xs-6">
-								<input type="text" class="form-control spots-input" placeholder="観光スポット">
-							</div>
-							<div class="col-xs-4">
-								<input type="text" class="form-control" placeholder="所要時間">
+				</div>
+				<div id="spots-recommend-list">
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.6837805" />
+						<input type="hidden" class="spots-recommend-lon" value="139.6920019" />
+						<input type="hidden" class="spots-recommend-name" value="浅草寺" />
+						<input type="hidden" class="spots-recommend-adress" value="浅草寺" />
+						<input type="hidden" class="spots-recommend-time" value="1.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/test.jpg" class="media-object" alt="">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>浅草寺</strong> </h3>
+								<h4><i>平均時間: 1時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都台東区浅草二丁目にある東京都内最古の寺である。山号は金龍山。本尊は聖観音菩薩。</p>
+								</div>
 							</div>
 						</div>
-						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
-							<span class="glyphicon glyphicon-minus"></span>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
 						</button>
 					</div>
 				</div>

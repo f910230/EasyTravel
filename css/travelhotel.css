@@ -46,23 +46,61 @@ body {
 }
 
 #scheduling-list {
-	height: 50%;
+	height: 500px;
 	overflow-y: auto;
 }
 
+.schedul-list-item {
+	padding-bottom: 5px;
+	margin: 15px;
+	height: 60px;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+	background: #fff;
+	position: relative;
+}
+.schedul-list-item-time {
+	position: absolute;
+	font-size: 24px;
+	top: 14px;
+	left: 25px;
+}
+
+.schedul-list-item-detail {
+	position: absolute;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 15px;
+	padding-right: 15px;
+	left: 100px;
+	height: 100%;
+	border-left: 5px solid #eee;
+}
+
+.schedul-list-item-detail-name {
+	font-size: 21px;
+}
+
+.schedul-list-item-detail-address {
+	
+}
+
 #hotel-list {
-	height: 50%;
+	height: 37%;
+	overflow-y: auto;
 }
 
 .hotel-list-item {
 	margin: 15px;
-	height: 64px;
+	height: 120px;
 	border: 1px solid #eee;
 	border-radius: 5px;
 	box-shadow: 0 1px 1px rgba(0,0,0,.1);
 	padding: 15px;
 	background: #fff;
 	position: relative;
+	background-color: #eee;
 }
 /*right*/
 #right-spotlist {
@@ -89,7 +127,8 @@ body {
 
 #spots-list {
 	margin-bottom: 10px;
-	height: 100%;
+	height: 260px;
+	overflow-y: auto;
 }
 
 .spots-list-item {
@@ -125,3 +164,30 @@ body {
 	top: 15px;
 }
 
+#spots-recommend-list {
+	height: 45%;
+	overflow-y: auto;
+}
+
+
+.spots-recommend-list-item {
+	margin: 15px;
+	height: 160px;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+	padding: 15px;
+	background: #fff;
+	position: relative;
+}
+.spots-recommend-list-item-intro {
+	margin-top: 10px;
+}
+.spots-recommend-background-color {
+	background-color: #67B168;
+}
+.select-button {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+}
