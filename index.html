@@ -5,7 +5,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-		<title>Travel Hotel</title>
+		<title>Easy Travel</title>
 
 		<link rel="stylesheet" href="css/bootstrap.css" />
 
@@ -16,62 +16,86 @@
 		<script type="text/javascript" src="js/bootstrap.js"></script>
 		<script>
 			$(document).ready(function() {
-				alert("Hello World");
+				$('.dropdown-toggle').dropdown();
+
+				$('#add-spot-btn').click(function() {
+					$('#spots-list').append("<div class='spots-list-item'><div class='row　spots-infos'><div class='col-xs-6'><input type='text' class='form-control' placeholder='観光スポット'></div><div class='col-xs-4'><input type='text' class='form-control' placeholder='所要時間'></div></div><button type='button' class='btn btn-default del-button'><span class='glyphicon glyphicon-minus'></span></button></div>");
+				});
 			});
 		</script>
 	</head>
+
 	<body>
-		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
+		<div id="top-menu" class="navbar navbar-fixed-top" role="navigation">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Easy Travel</a>
+			</div>
+		</div>
+
+		<div class="row custom-container">
+			<div class="col-md-4 main-middle-container border-space left-map">
+
+			</div>
+			<div class="col-md-4 main-middle-container border-space middle-plan">
+				<div>
+
+				</div>
+			</div>
+			<div class="col-md-4 main-middle-container border-space right-spotlist">
+				<div id="spots-title">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-lg dropdown-toggle">
+							東京
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href="#">東京</a>
+							</li>
+							<li>
+								<a href="#">大阪</a>
+							</li>
+							<li>
+								<a href="#">京都</a>
+							</li>
+						</ul>
+					</div>
+					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
+						<span class="glyphicon glyphicon-plus"></span>
+						観光スポットを追加
 					</button>
-					<a class="navbar-brand" href="#">Travel Hotel</a>
+				</div>
+				<div id="spots-middle-menu">
+					<div class="input-group">
+						<input type="text" class="form-control">
+						<span class="input-group-btn">
+					        <button class="btn btn-default" type="button">
+					        	<span class="glyphicon glyphicon-search"></span>
+						</button>
+						</span>
+					</div>
+				</div>
+				<div id="spots-list">
+					<div class="spots-list-item">
+						<div class="row　spots-infos">
+							<div class="col-xs-6">
+								<input type="text" class="form-control" placeholder="観光スポット">
+							</div>
+							<div class="col-xs-4">
+								<input type="text" class="form-control" placeholder="所要時間">
+							</div>
+						</div>
+						<button type="button" class="btn btn-default del-button">
+							<span class="glyphicon glyphicon-minus"></span>
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
-
-		<!-- Main jumbotron for a primary marketing message or call to action -->
-		<div class="jumbotron">
-			<div class="container">
-				<h1>Hello, Travel Hotel!</h1>
-				<p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-				<p><a class="btn btn-primary btn-lg" role="button">Learn more »</a>
-				</p>
-			</div>
-		</div>
-
+		<hr class="custom-hr">
 		<div class="container">
-			<!-- Example row of columns -->
-			<div class="row">
-				<div class="col-md-4">
-					<h2>Heading</h2>
-					<p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.</p>
-					<p><a class="btn btn-default" href="#" role="button">View details »</a>
-					</p>
-				</div>
-				<div class="col-md-4">
-					<h2>Heading</h2>
-					<p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.</p>
-					<p><a class="btn btn-default" href="#" role="button">View details »</a>
-					</p>
-				</div>
-				<div class="col-md-4">
-					<h2>Heading</h2>
-					<p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-					<p><a class="btn btn-default" href="#" role="button">View details »</a>
-					</p>
-				</div>
-			</div>
-
-			<hr>
-
-			<footer>
-				<p>© Company 2014</p>
+			<footer class="custom-center">
+				<p>Team Fennec © Rakuten Hackathon 2014</p>
 			</footer>
 		</div>
 		<!-- /container -->

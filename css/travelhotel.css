@@ -3,3 +3,100 @@ body {
   padding-top: 50px;
   padding-bottom: 20px;
 }
+
+/*menu*/
+#top-menu {
+	border-bottom: solid 1px lightgray;
+	background-color: #FFFFFF;
+}
+
+/*body*/
+.border-space {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+.custom-container {
+	margin: 0;
+}
+
+.custom-center {
+	margin: 0 auto;
+	width: 400px;
+}
+
+.main-middle-container {
+	height: auto;
+}
+
+/*left*/
+.left-map {
+	height: 100%;
+	background-color: #F3F3F3;
+}
+
+/*middle*/
+.middle-plan {
+	height: 100%;
+}
+
+/*right*/
+.right-spotlist {
+	height: 100%;
+	background-color: #F3F3F3;
+}
+
+#title-city {
+	font-size: 24px;
+	line-height: 24px;
+	float: left;
+}
+#title-select {
+	color: grey;
+}
+
+#spots-title {
+	margin-bottom: 10px;
+	position: relative;
+}
+#spots-middle-menu {
+	margin-bottom: 10px;
+}
+
+#spots-list {
+	margin-bottom: 10px;
+	height: 100%;
+}
+
+.spots-list-item {
+	margin: 15px;
+	height: 64px;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+	padding: 15px;
+	background: #fff;
+	position: relative;
+}
+.spots-list-item-detail {
+	position: absolute;
+	left: 120px;
+	top: 15px;
+}
+.add-button {
+	position: absolute;
+	right: 15px;
+}
+
+.del-button {
+	position: absolute;
+	right: 15px;
+	top: 15px;
+}
+
+/*footer*/
+.custom-hr {
+	margin-top: 0px;
+}
+
