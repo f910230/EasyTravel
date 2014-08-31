@@ -1,4 +1,4 @@
-TravelHotel
+EasyTravel
 ===========
 
 Rakuten Hackathon 2014 Summer
