@@ -23,7 +23,7 @@
 				$('#middle-plan').height(winheight - 51);
 				$('#right-spotlist').height(winheight - 51);
 
-				var locations = new Array();
+				locations = new Array();
 
 				function initAutoCompleteInputs(input) {
 					var autocomplete = new google.maps.places.Autocomplete(input);
@@ -34,7 +34,7 @@
 						map: map,
 						anchorPoint: new google.maps.Point(0, -29)
 					});
-					
+
 					google.maps.event.addListener(autocomplete, 'place_changed', function() {
 						infowindow.close();
 						marker.setVisible(false);
@@ -42,9 +42,9 @@
 						if (!place.geometry) {
 							return;
 						}
-						
+
 						locations.push(place.geometry.location);
-						
+
 						// If the place has a geometry, then present it on a map.
 						if (place.geometry.viewport) {
 							map.fitBounds(place.geometry.viewport);
@@ -78,7 +78,7 @@
 				function initialize() {
 					var mapOptions = {
 						zoom: 13,
-						center: new google.maps.LatLng(35.6837805,139.6920019),
+						center: new google.maps.LatLng(35.6837805, 139.6920019),
 					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
@@ -102,6 +102,75 @@
 				});
 
 				initialize();
+
+				function computeRoute() {
+					var aveLat = 0;
+					var aveLng = 0;
+					for (var i = 0; i < location.length; i++) {
+						aveLat += location[i].lat();
+						aveLng += location[i].lng();
+					}
+					aveLat /= location.length;
+					aveLng /= location.length;
+
+					var url = "https://app.rakuten.co.jp/services/api/Travel/SimpleHotelSearch/20131024?format=json&latitude=" + aveLat + "&longitude=" + aveLng + "&searchRadius=3&datumType=1&applicationId=1073093603950172902";
+
+					var hotelName, latitude, longitude;
+					$.ajax({
+						type: "get",
+						url: url,
+						async: true,
+						ssuccess: function(data) {
+							var obj = JSON.parse(data);
+							hotelName = obj.hotels[i].hotel[0].hotelBasicInfo.hotelName;
+							hotelLat = obj.hotels[i].hotel[0].hotelBasicInfo.latitude;
+							hotelLng = obj.hotels[i].hotel[0].hotelBasicInfo.longitude;
+
+
+						}
+					});
+
+					function calcRoute() {
+						var start = new google.maps.LatLng(hotelLat,hotelLng);
+						var end = start;
+						var waypts = [];
+
+						for (var i = 0; i < locations.length; i++) {
+							var latlng = new google.maps.LatLng(locations[i].lat(),locations[i].lng());
+							waypts.push({
+								location: latlng,
+								stopover: true
+							});
+						}
+
+						var request = {
+							origin: start,
+							destination: end,
+							waypoints: waypts,
+							optimizeWaypoints: true,
+							travelMode: google.maps.TravelMode.TRANSIT
+						};
+						directionsService.route(request, function(response, status) {
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplay.setDirections(response);
+								var route = response.routes[0];
+								var summaryPanel = document.getElementById("directions_panel");
+								summaryPanel.innerHTML = "";
+								// For each route, display summary information.
+								for (var i = 0; i < route.legs.length; i++) {
+									var routeSegment = i + 1;
+									summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br />";
+									summaryPanel.innerHTML += route.legs[i].start_address + " to ";
+									summaryPanel.innerHTML += route.legs[i].end_address + "<br />";
+									summaryPanel.innerHTML += route.legs[i].distance.text + "<br /><br />";
+								}
+							}
+						});
+					}
+
+				}
+
+
 			});
 		</script>
 	</head>
@@ -120,7 +189,8 @@
 			</div>
 			<div id="middle-plan" class="col-md-4 main-middle-container border-space">
 				<div>
-
+					<div id="directions_panel" style="margin:20px;background-color:#FFEE77;"></div>
+					
 				</div>
 			</div>
 			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
@@ -143,15 +213,16 @@
 						</ul>
 					</div>
 					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
-						<span class="glyphicon glyphicon-plus"></span>
-						観光スポットを追加
+						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
 					</button>
 				</div>
 				<div id="spots-middle-menu">
 					<div class="input-group">
 						<input type="text" class="form-control">
 						<span class="input-group-btn">
+
 					        <button class="btn btn-default" type="button">
+
 					        	<span class="glyphicon glyphicon-search"></span>
 						</button>
 						</span>
@@ -200,7 +271,7 @@
 				</div>
 			</div>
 		</div>
-
+		
 	</body>
 
 </html>
