@@ -17,24 +17,58 @@
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBt0B5zfhPz_cSaeBkiCeE1sdz_87nJbrM&libraries=places">
 		</script>
 		<script>
+			Array.prototype.remove = function(from, to) {
+				var rest = this.slice((to || from) + 1 || this.length);
+				this.length = from < 0 ? this.length + from : from;
+				return this.push.apply(this, rest);
+			};
+			
 			$(document).ready(function() {
 				var winheight = $(document).height();
 				$('#left-map').height(winheight - 51);
 				$('#middle-plan').height(winheight - 51);
 				$('#right-spotlist').height(winheight - 51);
 
-				var locations = new Array();
+				locations = new Array();
+
+				function addlocation(loc) {
+					var input = loc.input;
+					var location = loc.location;
+					var flag = false;
+					for (var i = 0; i < locations.length; i++) {
+						if (locations[i].input == input) {
+							locations[i].location = location;
+							flag = true;
+						}
+					}
+					if (!flag) {
+						locations.push(loc);
+					}
+				}
+
+				function removelocation(input) {
+					var index = -1;
+					for (var i = 0; i < locations.length; i++) {
+						if (locations[i].input == input) {
+							index = i;
+							break;
+						}
+					}
+					if (index != -1)
+						locations.remove(i);
+				}
 
 				function initAutoCompleteInputs(input) {
 					var autocomplete = new google.maps.places.Autocomplete(input);
 					autocomplete.bindTo('bounds', map);
+					autocomplete.input = input;
 
 					var infowindow = new google.maps.InfoWindow();
 					var marker = new google.maps.Marker({
 						map: map,
 						anchorPoint: new google.maps.Point(0, -29)
 					});
-					
+
 					google.maps.event.addListener(autocomplete, 'place_changed', function() {
 						infowindow.close();
 						marker.setVisible(false);
@@ -42,9 +76,12 @@
 						if (!place.geometry) {
 							return;
 						}
-						
-						locations.push(place.geometry.location);
-						
+
+						addlocation({
+							input: autocomplete.input,
+							location: place.geometry.location
+						});
+
 						// If the place has a geometry, then present it on a map.
 						if (place.geometry.viewport) {
 							map.fitBounds(place.geometry.viewport);
@@ -78,11 +115,11 @@
 				function initialize() {
 					var mapOptions = {
 						zoom: 13,
-						center: new google.maps.LatLng(35.6837805,139.6920019),
+						center: new google.maps.LatLng(35.6837805, 139.6920019),
 					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-					for(var i = 0; i < $('.spots-input').size(); i++) {
+					for (var i = 0; i < $('.spots-input').size(); i++) {
 						initAutoCompleteInputs($('.spots-input')[i]);
 					}
 				}
@@ -95,8 +132,9 @@
 					initAutoCompleteInputs($('.spots-input')[index]);
 				});
 
-				$('.del-spot-btn').click(function() {
-					alert($(this));
+				$('.del-button').click(function() {
+					$(this)[0].parentElement.remove();
+					removelocation($(this)[0].parentElement.children[0].children[0].children[0]);
 				});
 
 				initialize();
@@ -107,7 +145,7 @@
 	<body>
 		<div id="top-menu" class="navbar" role="navigation">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="#">Easy Travel</a>
+				<a id="site-title"  class="navbar-brand" href="#"><strong>Easy Travel</strong></a>
 			</div>
 		</div>
 
@@ -117,7 +155,7 @@
 			</div>
 			<div id="middle-plan" class="col-md-4 main-middle-container border-space">
 				<div>
-
+					
 				</div>
 			</div>
 			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
@@ -139,6 +177,10 @@
 							</li>
 						</ul>
 					</div>
+					<button type="button" id="calc-spot-btn" class="btn btn-default btn-lg calc-button">
+						<span class="glyphicon glyphicon-pencil"></span>
+						スケジューリング
+					</button>
 					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
 						<span class="glyphicon glyphicon-plus"></span>
 						観光スポットを追加
@@ -164,7 +206,7 @@
 								<input type="text" class="form-control" placeholder="所要時間">
 							</div>
 						</div>
-						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
+						<button type="button" class="btn btn-default del-button">
 							<span class="glyphicon glyphicon-minus"></span>
 						</button>
 					</div>

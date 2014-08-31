@@ -9,6 +9,10 @@ body {
 	background-color: #FFFFFF;
 }
 
+#site-title {
+	font-size: 30px;
+}
+
 /*body*/
 .border-space {
 	padding-top: 10px;
@@ -87,6 +91,11 @@ body {
 .add-button {
 	position: absolute;
 	right: 15px;
+}
+
+.calc-button {
+	position: absolute;
+	right: 250px;
 }
 
 .del-button {
