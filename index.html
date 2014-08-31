@@ -269,7 +269,7 @@
 									travelMode: google.maps.TravelMode.DRIVING
 								};
 							}
-
+							initialize();
 							var directionsService = new google.maps.DirectionsService();
 							var directionsDisplay = new google.maps.DirectionsRenderer();
 							directionsDisplay.setMap(map);
@@ -382,6 +382,7 @@
 			</div>
 			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
 				<div id="spots-title">
+					<!--
 					<div class="btn-group">
 						<button type="button" class="btn btn-default btn-lg dropdown-toggle">
 							東京
@@ -400,6 +401,7 @@
 							</li>
 						</ul>
 					</div>
+                    -->
 					<button type="button" id="calc-spot-btn" class="btn btn-default btn-lg calc-button">
 						<span class="glyphicon glyphicon-pencil"></span>
 						スケジューリング
