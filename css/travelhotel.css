@@ -127,7 +127,7 @@ body {
 
 #spots-list {
 	margin-bottom: 10px;
-	height: 260px;
+	height: 180px;
 	overflow-y: auto;
 }
 
@@ -165,7 +165,7 @@ body {
 }
 
 #spots-recommend-list {
-	height: 45%;
+	height: 70%;
 	overflow-y: auto;
 }
 
