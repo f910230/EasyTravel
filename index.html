@@ -223,6 +223,19 @@
 
 				initialize();
 
+				function parseTime(time) {
+										var hour = Math.floor(time);
+										if (hour < 10)
+											hour = "0" + hour;
+										var humanTime = hour + ":";
+										var min = Math.floor((time - Math.floor(time)) * 60);
+										if (min < 10) {
+											min = "0" + min;
+										}
+										humanTime += min;
+										return humanTime;
+				}
+
 				function computeRoute() {
 					var aveLat = 0;
 					var aveLng = 0;
@@ -294,12 +307,25 @@
 									var str3 = "<div class='schedul-list-item-detail'><div class='schedul-list-item-detail-name'><strong>";
 									var str4 = "</strong></div><div class='schedul-list-item-detail-address'><small>";
 									var str5 = "</small></div></div></div>";
+									var str6 = "<div class='schedul-list-drive'><div class='schedul-list-drive-time'>"
+									var str7 = "</div><div class='schedul-list-drive-detail'><div class='schedul-list-drive-detail-name'>出発:"
+									var str8 = "</div><div><small>"
+									var str9 = "</small></div><div class='schedul-list-drive-detail-name'>到着:" 
+									var str10 = "</div></div></div>"
 									var name = hotelName;
 									var time = 8;
 									var humanTime = "08:00";
 									var address = route.legs[0].start_address;
 									var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 									$('#scheduling-list').append(htmlstr);
+									
+									var start_time = humanTime;
+									var start_address = route.legs[0].start_address
+									var duration = route.legs[0].duration.text
+									var end_address = route.legs[0].end_address
+									var htmlstr = str6 + start_time + str7 + start_address + str8 + duration + str9 + end_address + str10;
+									$('#scheduling-list').append(htmlstr);
+									
 									//var summaryPanel = document.getElementById('directions_panel');
 									//summaryPanel.innerHTML = '';
 									// For each route, display summary information.
@@ -308,15 +334,8 @@
 										var address = route.legs[i].start_address;
 										var name = locations[i - 1].name;
 										time += parseInt(locations[i - 1].time) + parseInt(route.legs[i - 1].duration.value) / 3600;
-										var hour = Math.floor(time);
-										if (hour < 10)
-											hour = "0" + hour;
-										var humanTime = hour + ":";
-										var min = Math.floor((time - Math.floor(time)) * 60);
-										if (min < 10) {
-											min = "0" + min;
-										}
-										humanTime += min;
+										
+										var humanTime = parseTime(time);
 										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 										$('#scheduling-list').append(htmlstr);
 										//var routeSegment = i + 1;
@@ -325,6 +344,15 @@
 										//summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
 										//summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
 										//summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
+										
+										var start_time = time + parseInt(locations[i - 1].time);
+										var humanTime = parseTime(start_time);
+										var start_address = route.legs[i].start_address
+										var duration = route.legs[i].duration.text
+										var end_address = route.legs[i].end_address
+										var htmlstr = str6 + humanTime + str7 + start_address + str8 + duration + str9 + end_address + str10;
+										$('#scheduling-list').append(htmlstr);
+										
 									}
 									name = hotelName;
 									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
@@ -358,7 +386,6 @@
 	          <p class="navbar-text navbar-right">Rakuten Hackathon 2014 Summer <strong>Team Fennec</strong></p>
 	        </div>
 		</div>
-
 		<div class="row custom-container">
 			<div id="left-map" class="col-md-4 main-middle-container border-space">
 				<div id="map_canvas" style="width: 100%; height: 100%"></div>
@@ -368,6 +395,7 @@
 				</div>
 				<hr />
 				<div id="hotel-list">
+					
 				</div>
 			</div>
 			<div id="right-spotlist" class="col-md-4 main-middle-container border-space">
