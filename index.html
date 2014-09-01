@@ -41,19 +41,21 @@
 					$('#hotel-list').empty();
 					var str11 = "<div class='hotel-list-item'><div class='media'><a href='#' class='pull-left'><img src='"
 					var str12 = "<div class='hotel-list-item spots-recommend-background-color'><div class='media'><a href='#' class='pull-left'><img src='"
-					var str2 = "' class='media-object' alt=''></a><div class='media-body'><h4 class='media-heading'>"
-					var str3 = "<small><i>"
-					var str4 = "</i></small></h4><p>"
-					var str5 = "</p></div></div></div>"
+					var str2 = "' class='media-object' alt=''></a><div class='media-body'><h4 class='media-heading'><a href='"
+					var str3 = "'>";
+					var str4 = "</a><small><i>"
+					var str5 = "</i></small></h4><p>"
+					var str6 = "</p></div></div></div>"
 					for (var i = 0; i < m_hotels.length; i++) {
+						var hotelurl = m_hotels[i].hotelInformationUrl;
 						var hotelName = m_hotels[i].hotelName;
 						var hotelThumbnailUrl = m_hotels[i].hotelThumbnailUrl;
-						var nearestStation = m_hotels[i].nearestStation;
+						var nearestStation = m_hotels[i].nearestStation == null ? "" : m_hotels[i].nearestStation;
 						var hotelSpecial = m_hotels[i].hotelSpecial;
 						var str1 = str11;
 						if (i == 0)
 							str1 = str12;
-						var htmlstr = str1 + hotelThumbnailUrl + str2 + hotelName + str3 + nearestStation + str4 + hotelSpecial + str5;
+						var htmlstr = str1 + hotelThumbnailUrl + str2 + hotelurl + str3 +hotelName + str4 + nearestStation + str5 + hotelSpecial + str6;
 						$('#hotel-list').append(htmlstr);
 					}
 				}
@@ -218,6 +220,7 @@
 					} else {
 						$(this).children().removeClass("glyphicon-ok");
 						$(this).children().addClass("glyphicon-plus");
+						removelocation($(this)[0].parentElement);
 					}
 				})
 
@@ -513,8 +516,8 @@
 						</button>
 					</div>
 					<div class="spots-recommend-list-item">
-						<input type="hidden" class="spots-recommend-lat" value="35.658828" />
-						<input type="hidden" class="spots-recommend-lon" value="139.745433" />
+						<input type="hidden" class="spots-recommend-lat" value="35.658567" />
+						<input type="hidden" class="spots-recommend-lon" value="139.745412" />
 						<input type="hidden" class="spots-recommend-name" value="東京タワー" />
 						<input type="hidden" class="spots-recommend-adress" value="東京タワー" />
 						<input type="hidden" class="spots-recommend-time" value="1.5" />
@@ -535,8 +538,8 @@
 						</button>
 					</div>
 					<div class="spots-recommend-list-item">
-						<input type="hidden" class="spots-recommend-lat" value="35.671950" />
-						<input type="hidden" class="spots-recommend-lon" value="139.694956" />
+						<input type="hidden" class="spots-recommend-lat" value="35.671740" />
+						<input type="hidden" class="spots-recommend-lon" value="139.694924" />
 						<input type="hidden" class="spots-recommend-name" value="代々木公園" />
 						<input type="hidden" class="spots-recommend-adress" value="代々木公園" />
 						<input type="hidden" class="spots-recommend-time" value="1" />
@@ -557,8 +560,8 @@
 						</button>
 					</div>
 					<div class="spots-recommend-list-item">
-						<input type="hidden" class="spots-recommend-lat" value="35.685433" />
-						<input type="hidden" class="spots-recommend-lon" value="139.710063" />
+						<input type="hidden" class="spots-recommend-lat" value="35.685180" />
+						<input type="hidden" class="spots-recommend-lon" value="139.710041" />
 						<input type="hidden" class="spots-recommend-name" value="新宿御苑" />
 						<input type="hidden" class="spots-recommend-adress" value="新宿御苑" />
 						<input type="hidden" class="spots-recommend-time" value="1.5" />
@@ -571,6 +574,50 @@
 								<h4><i>平均時間: 1.5時間</i></h4>
 								<div class="spots-recommend-list-item-intro">
 									<p>紹介: 東京都新宿区と渋谷区に跨る環境省所管の庭園である。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.696285" />
+						<input type="hidden" class="spots-recommend-lon" value="139.570312" />
+						<input type="hidden" class="spots-recommend-name" value="三鷹の森ジブリ美術館" />
+						<input type="hidden" class="spots-recommend-adress" value="三鷹の森ジブリ美術館" />
+						<input type="hidden" class="spots-recommend-time" value="2.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/mitakagipuri.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>三鷹の森ジブリ美術館</strong> </h3>
+								<h4><i>平均時間: 2.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 東京都三鷹市にある三鷹市立のアニメーション美術館。</p>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-default select-button">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+					</div>
+					<div class="spots-recommend-list-item">
+						<input type="hidden" class="spots-recommend-lat" value="35.730235" />
+						<input type="hidden" class="spots-recommend-lon" value="139.711562" />
+						<input type="hidden" class="spots-recommend-name" value="池袋" />
+						<input type="hidden" class="spots-recommend-adress" value="池袋" />
+						<input type="hidden" class="spots-recommend-time" value="2.5" />
+						<div class="media">
+							<a href="#" class="pull-left">
+								<img src="img/ikebukuro.jpg" class="media-object" alt="" height="100" width="150">
+							</a>
+							<div class="media-body">
+								<h3 class="media-heading"><strong>池袋</strong> </h3>
+								<h4><i>平均時間: 2.5時間</i></h4>
+								<div class="spots-recommend-list-item-intro">
+									<p>紹介: 池袋は、新宿、渋谷と並ぶ山の手3大副都心の一つ。巨大な百貨店や専門店、飲食店などが局在する。</p>
 								</div>
 							</div>
 						</div>
