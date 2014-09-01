@@ -148,14 +148,12 @@
 					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-
 					for (var i = 0; i < $('.spots-input').size(); i++) {
 						initAutoCompleteInputs($('.spots-input')[i]);
 					}
 				}
 
 				function mapSetCenter(btnNo) {
-
 					if (btnNo == 1) {
 						map.setCenter(new google.maps.LatLng(35.6837805, 139.6920019));
 					}
@@ -181,21 +179,17 @@
 					$('.del-button').click(deleteCustonSpot);
 				});
 
-
-
 				$('.calc-button').click(function() {
-					for(var i = 0; i < locations.length; i++) {
-						for(var j = 0; j < $('.spots-time').size(); j++) {
+					for (var i = 0; i < locations.length; i++) {
+						for (var j = 0; j < $('.spots-time').size(); j++) {
 							var time = $('.spots-time')[j].value;
-							if(locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
+							if (locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
 								locations[i].time = time;
 						}
 					}
 					computeRoute();
 				});
-
-
-
+				
 				$('.dropdown-menu-link').click(function() {
 					if ($(this).html() == "東京")
 						mapSetCenter(1);
@@ -217,7 +211,14 @@
 						time: time,
 						location: new google.maps.LatLng(lat, lon)
 					});
-					$(this).toggleClass("spots-recommend-background-color");
+					$(this).parent().toggleClass("spots-recommend-background-color");
+					if ($(this).children().hasClass("glyphicon-plus")) {
+						$(this).children().removeClass("glyphicon-plus");
+						$(this).children().addClass("glyphicon-ok");
+					} else {
+						$(this).children().removeClass("glyphicon-ok");
+						$(this).children().addClass("glyphicon-plus");
+					}
 				})
 
 				initialize();
@@ -279,9 +280,7 @@
 								if (status == google.maps.DirectionsStatus.OK) {
 									//alert("success");
 									var route = response.routes[0];
-									$('#scheduling-list').html("");
-
-
+									$('#scheduling-list').empty();
 									//									for (var i = 1; i < locations.length; i++) {
 									//										var name = locations[i].name;
 									//										var address = locations[i].address;
@@ -289,8 +288,6 @@
 									//										var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
 									//										$('#scheduling-list').append(htmlstr);
 									//									}
-
-
 									directionsDisplay.setDirections(response);
 									var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
 									var str2 = "</div>";
@@ -322,21 +319,18 @@
 										humanTime += min;
 										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 										$('#scheduling-list').append(htmlstr);
-										//											var routeSegment = i + 1;
-										//											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
-										//											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
-										//											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-										//											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
-										//											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
-
-
-
+										//var routeSegment = i + 1;
+										//summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+										//summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+										//summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+										//summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+										//summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
 									}
 									name = hotelName;
 									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
 									var hour = Math.floor(time);
-										if (hour < 10)
-											hour = "0" + hour;
+									if (hour < 10)
+										hour = "0" + hour;
 									var humanTime = hour + ":";
 									var min = Math.floor((time - Math.floor(time)) * 60);
 									if (min < 10) {
@@ -348,16 +342,9 @@
 									$('#scheduling-list').append(htmlstr);
 								}
 							});
-
-
-
-
 						}
 					});
-
 				}
-
-
 			});
 		</script>
 	</head>
