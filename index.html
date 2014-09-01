@@ -148,14 +148,12 @@
 					}
 					map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-
 					for (var i = 0; i < $('.spots-input').size(); i++) {
 						initAutoCompleteInputs($('.spots-input')[i]);
 					}
 				}
 
 				function mapSetCenter(btnNo) {
-
 					if (btnNo == 1) {
 						map.setCenter(new google.maps.LatLng(35.6837805, 139.6920019));
 					}
@@ -181,21 +179,17 @@
 					$('.del-button').click(deleteCustonSpot);
 				});
 
-
-
 				$('.calc-button').click(function() {
-					for(var i = 0; i < locations.length; i++) {
-						for(var j = 0; j < $('.spots-time').size(); j++) {
+					for (var i = 0; i < locations.length; i++) {
+						for (var j = 0; j < $('.spots-time').size(); j++) {
 							var time = $('.spots-time')[j].value;
-							if(locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
+							if (locations[i].input.parentElement.parentElement.children[1].children[0] == $('.spots-time')[j])
 								locations[i].time = time;
 						}
 					}
 					computeRoute();
 				});
-
-
-
+				
 				$('.dropdown-menu-link').click(function() {
 					if ($(this).html() == "東京")
 						mapSetCenter(1);
@@ -217,7 +211,14 @@
 						time: time,
 						location: new google.maps.LatLng(lat, lon)
 					});
-					$(this).toggleClass("spots-recommend-background-color");
+					$(this).parent().toggleClass("spots-recommend-background-color");
+					if ($(this).children().hasClass("glyphicon-plus")) {
+						$(this).children().removeClass("glyphicon-plus");
+						$(this).children().addClass("glyphicon-ok");
+					} else {
+						$(this).children().removeClass("glyphicon-ok");
+						$(this).children().addClass("glyphicon-plus");
+					}
 				})
 
 				initialize();
@@ -279,9 +280,7 @@
 								if (status == google.maps.DirectionsStatus.OK) {
 									//alert("success");
 									var route = response.routes[0];
-									$('#scheduling-list').html("");
-
-
+									$('#scheduling-list').empty();
 									//									for (var i = 1; i < locations.length; i++) {
 									//										var name = locations[i].name;
 									//										var address = locations[i].address;
@@ -289,8 +288,6 @@
 									//										var htmlstr = str1 + time + str2 + str3 + name + str4 + address + str5;
 									//										$('#scheduling-list').append(htmlstr);
 									//									}
-
-
 									directionsDisplay.setDirections(response);
 									var str1 = "<div class='schedul-list-item'><div class='schedul-list-item-time'>";
 									var str2 = "</div>";
@@ -322,21 +319,18 @@
 										humanTime += min;
 										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 										$('#scheduling-list').append(htmlstr);
-										//											var routeSegment = i + 1;
-										//											summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
-										//											summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
-										//											summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-										//											summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
-										//											summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
-
-
-
+										//var routeSegment = i + 1;
+										//summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+										//summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+										//summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+										//summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
+										//summaryPanel.innerHTML += route.legs[i].duration.text + '<br><br>';
 									}
 									name = hotelName;
 									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
 									var hour = Math.floor(time);
-										if (hour < 10)
-											hour = "0" + hour;
+									if (hour < 10)
+										hour = "0" + hour;
 									var humanTime = hour + ":";
 									var min = Math.floor((time - Math.floor(time)) * 60);
 									if (min < 10) {
@@ -348,16 +342,9 @@
 									$('#scheduling-list').append(htmlstr);
 								}
 							});
-
-
-
-
 						}
 					});
-
 				}
-
-
 			});
 		</script>
 	</head>
@@ -367,8 +354,10 @@
 			<div class="navbar-header">
 				<a id="site-title" class="navbar-brand" href="#"><strong>Easy Travel</strong></a>
 			</div>
+			<div class="collapse navbar-collapse">
+	          <p class="navbar-text navbar-right">Rakuten Hackathon 2014 Summer <strong>Team Fennec</strong></p>
+	        </div>
 		</div>
-
 		<div class="row custom-container">
 			<div id="left-map" class="col-md-4 main-middle-container border-space">
 				<div id="map_canvas" style="width: 100%; height: 100%"></div>
@@ -397,17 +386,15 @@
 							</li>
 							<li>
 								<a class="dropdown-menu-link">京都</a>
-
 							</li>
 						</ul>
 					</div>
                     -->
-					<button type="button" id="calc-spot-btn" class="btn btn-default btn-lg calc-button">
-						<span class="glyphicon glyphicon-pencil"></span>
-						スケジューリング
+					<button type="button" id="calc-spot-btn" class="btn btn-default calc-button">
+						<span class="glyphicon glyphicon-pencil"></span>スケジューリング
 					</button>
-					<button type="button" id="add-spot-btn" class="btn btn-default btn-lg add-button">
-						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
+					<button type="button" id="add-spot-btn" class="btn btn-default add-button">
+						<span class="glyphicon glyphicon-plus"></span>観光スポットを追加
 					</button>
 				</div>
 				<div id="spots-list">
@@ -430,7 +417,20 @@
 								<input type="text" class="form-control spots-input" placeholder="観光スポット">
 							</div>
 							<div class="col-xs-4">
-								<input type="text" class="form-control" placeholder="所要時間" value="1.5">
+								<input type="text" class="form-control spots-time" placeholder="所要時間" value="1.5">
+							</div>
+						</div>
+						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
+							<span class="glyphicon glyphicon-minus"></span>
+						</button>
+					</div>
+					<div class="spots-list-item">
+						<div class="row　spots-infos">
+							<div class="col-xs-6">
+								<input type="text" class="form-control spots-input" placeholder="観光スポット">
+							</div>
+							<div class="col-xs-4">
+								<input type="text" class="form-control spots-time" placeholder="所要時間" value="1.5">
 							</div>
 						</div>
 						<button type="button" id="del-spot-btn" class="btn btn-default del-button">
@@ -453,7 +453,7 @@
 								<h3 class="media-heading"><strong>浅草寺</strong> </h3>
 								<h4><i>平均時間: 1時間</i></h4>
 								<div class="spots-recommend-list-item-intro">
-									<p>紹介: 東京都台東区浅草二丁目にある東京都内最古の寺である。山号は金龍山。本尊は聖観音菩薩。</p>
+									<p>紹介: 東京都台東区浅草二丁目にある東京都内最古の寺である。</p>
 								</div>
 							</div>
 						</div>
