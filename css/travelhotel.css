@@ -107,11 +107,16 @@ body {
 }
 
 .schedul-list-item-detail-name {
-	font-size: 21px;
+	font-size: 20px;
+}
+
+.schedul-list-item-detail-time {
+	position: absolute;
+	right: 15px;
+	top: 10px;
 }
 
 .schedul-list-item-detail-address {
-	
 }
 
 #hotel-list {
