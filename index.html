@@ -261,9 +261,7 @@
 							var start = new google.maps.LatLng(hotelLat, hotelLng);
 							var end = start;
 							var waypts = [];
-							var accumTime = 0;
 							for (var i = 0; i < locations.length; i++) {
-								accumTime += locations[i].time;
 								var latlng = new google.maps.LatLng(locations[i].location.lat(),
 									locations[i].location.lng());
 								waypts.push({
@@ -313,33 +311,28 @@
 									for (var i = 1; i < route.legs.length; i++) {
 										var address = route.legs[i].start_address;
 										var loc = locations[route.waypoint_order[i - 1]];
-										var name = loc.name;
-										time += parseInt(loc.time) + parseInt(route.legs[i - 1].duration.value) / 3600;
-
-										var humanTime = parseTime(time);
-										var htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
+										name = loc.name;
+										time += parseFloat(route.legs[i-1].duration.value) / 3600;
+										var str11 = "<div class='schedul-list-item'><div class='schedul-list-item-detail-time'>"
+										var str12 = "時間</div><div class='schedul-list-item-time'>";
+										 
+										humanTime = parseTime(time);
+										htmlstr = str11 + loc.time + str12 + humanTime + str2 + str3 + name + str4 + address + str5;
 										$('#scheduling-list').append(htmlstr);
 
-										var start_time = time + parseInt(loc.time);
-										var humanTime = parseTime(start_time);
-										var start_address = route.legs[i].start_address
-										var duration = route.legs[i].duration.text
-										var end_address = route.legs[i].end_address
-										var htmlstr = str6 + humanTime + str7 + start_address + str8 + duration + str9 + end_address + str10;
+										time = time + parseFloat(loc.time);
+										humanTime = parseTime(time);
+										start_address = route.legs[i].start_address
+										duration = route.legs[i].duration.text
+										end_address = route.legs[i].end_address
+										htmlstr = str6 + humanTime + str7 + start_address + str8 + duration + str9 + end_address + str10;
 										$('#scheduling-list').append(htmlstr);
 
 									}
 									name = hotelName;
-									time += parseInt(locations[locations.length - 1].time) + parseInt(route.legs[route.legs.length - 1].duration.value) / 3600;
-									var hour = Math.floor(time);
-									if (hour < 10)
-										hour = "0" + hour;
-									var humanTime = hour + ":";
-									var min = Math.floor((time - Math.floor(time)) * 60);
-									if (min < 10) {
-										min = "0" + min;
-									}
-									humanTime += min;
+									time += parseFloat(route.legs[route.legs.length - 1].duration.value) / 3600;
+									
+									humanTime = parseTime(time);
 									address = route.legs[0].start_address;
 									htmlstr = str1 + humanTime + str2 + str3 + name + str4 + address + str5;
 									$('#scheduling-list').append(htmlstr);
