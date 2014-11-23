@@ -1,8 +1,8 @@
 EasyTravel
 ===========
 
-##Rakuten Hackathon 2014 Summer
-###Team Fennec
+###Rakuten Hackathon 2014 Summer
+Team Fennec
 
 EasyTravel is an Demo project which was made in Rakuten Hackathon 2014 Summer.
 
